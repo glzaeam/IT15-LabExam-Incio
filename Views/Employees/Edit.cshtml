@@ -1,53 +1,56 @@
 @model TechCoreSolutions.Models.Employee
 @{ ViewData["Title"] = "Edit Employee"; }
 
-<div class="mb-4">
-    <a asp-action="Index" style="color:#718096;font-size:0.85rem;text-decoration:none;">
-        <i class="bi bi-arrow-left"></i> Back to Employees
-    </a>
-</div>
+<!-- Edit Employee Modal -->
+<div id="editEmployeeModal" style="display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #0D1B2A; margin: 0;">
+                <i class="bi bi-pencil-square"></i> Edit Employee
+            </h2>
+            <a href="@Url.Action("Index")" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #718096; text-decoration: none;">
+                <i class="bi bi-x"></i>
+            </a>
+        </div>
 
-<div class="tc-card" style="max-width:640px;">
-    <div class="tc-card-header">
-        <span class="tc-card-title"><i class="bi bi-pencil-square"></i> Edit Employee — EMP-@Model.EmployeeID.ToString("D3")</span>
-    </div>
-    <div style="padding:28px;">
-        <form asp-action="Edit" method="post">
+        <form asp-action="Edit" method="post" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="EmployeeID" />
-            <div asp-validation-summary="ModelOnly" class="tc-alert tc-alert-danger"></div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="tc-form-label">First Name</label>
-                    <input asp-for="FirstName" class="tc-form-control" />
-                    <span asp-validation-for="FirstName" style="color:#E53E3E;font-size:0.78rem;"></span>
-                </div>
-                <div class="col-md-6">
-                    <label class="tc-form-label">Last Name</label>
-                    <input asp-for="LastName" class="tc-form-control" />
-                    <span asp-validation-for="LastName" style="color:#E53E3E;font-size:0.78rem;"></span>
-                </div>
-                <div class="col-md-6">
-                    <label class="tc-form-label">Position</label>
-                    <input asp-for="Position" class="tc-form-control" />
-                    <span asp-validation-for="Position" style="color:#E53E3E;font-size:0.78rem;"></span>
-                </div>
-                <div class="col-md-6">
-                    <label class="tc-form-label">Department</label>
-                    <input asp-for="Department" class="tc-form-control" />
-                    <span asp-validation-for="Department" style="color:#E53E3E;font-size:0.78rem;"></span>
-                </div>
-                <div class="col-md-6">
-                    <label class="tc-form-label">Daily Rate (₱)</label>
-                    <input asp-for="DailyRate" class="tc-form-control" type="number" step="0.01" />
-                    <span asp-validation-for="DailyRate" style="color:#E53E3E;font-size:0.78rem;"></span>
-                </div>
+            <div asp-validation-summary="ModelOnly" style="grid-column: 1 / 3; color: #E53E3E; font-size: 0.9rem;"></div>
+            
+            <div style="grid-column: 1 / 2;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">First Name</label>
+                <input asp-for="FirstName" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                <span asp-validation-for="FirstName" style="color:#E53E3E;font-size:0.78rem;"></span>
             </div>
-            <div class="d-flex gap-3 mt-4">
-                <button type="submit" class="btn-tc-primary">
+            <div style="grid-column: 2 / 3;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Last Name</label>
+                <input asp-for="LastName" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                <span asp-validation-for="LastName" style="color:#E53E3E;font-size:0.78rem;"></span>
+            </div>
+            <div style="grid-column: 1 / 3;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Position</label>
+                <input asp-for="Position" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                <span asp-validation-for="Position" style="color:#E53E3E;font-size:0.78rem;"></span>
+            </div>
+            <div style="grid-column: 1 / 2;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Department</label>
+                <input asp-for="Department" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                <span asp-validation-for="Department" style="color:#E53E3E;font-size:0.78rem;"></span>
+            </div>
+            <div style="grid-column: 2 / 3;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Daily Rate (₱)</label>
+                <input asp-for="DailyRate" type="number" step="0.01" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                <span asp-validation-for="DailyRate" style="color:#E53E3E;font-size:0.78rem;"></span>
+            </div>
+
+            <div style="grid-column: 1 / 3; display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                <a asp-action="Index" style="background: white; color: #6B6760; padding: 10px 20px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-decoration: none; font-family: 'DM Sans', sans-serif;">
+                    Cancel
+                </a>
+                <button type="submit" style="background: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif;">
                     <i class="bi bi-check-lg"></i> Update Employee
                 </button>
-                <a asp-action="Index" class="btn-tc-outline">Cancel</a>
             </div>
         </form>
     </div>

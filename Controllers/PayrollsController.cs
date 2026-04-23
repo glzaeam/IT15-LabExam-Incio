@@ -26,18 +26,17 @@ namespace TechCoreSolutions.Controllers
             }
 
             ViewBag.Employees = await _context.Employees.ToListAsync();
+            ViewBag.EmployeeList = await _context.Employees.ToListAsync();
             ViewBag.SelectedEmployeeId = employeeId;
+            ViewBag.PreselectedEmployeeId = employeeId;
 
             return View(await query.OrderByDescending(p => p.Date).ToListAsync());
         }
 
         public async Task<IActionResult> Create(int? employeeId)
         {
-            ViewBag.Employees = new SelectList(await _context.Employees.ToListAsync(),
-                "EmployeeID", "FirstName");
-            ViewBag.EmployeeList = await _context.Employees.ToListAsync();
-            ViewBag.PreselectedEmployeeId = employeeId;
-            return View();
+            // Just redirect to Index - the modal form is on the Index page
+            return RedirectToAction(nameof(Index), new { employeeId = employeeId });
         }
 
         [HttpPost]
@@ -47,15 +46,17 @@ namespace TechCoreSolutions.Controllers
             var employee = await _context.Employees.FindAsync(payroll.EmployeeID);
             if (employee == null)
             {
-                ModelState.AddModelError("", "Employee not found.");
+                TempData["Error"] = "Employee not found.";
+                return RedirectToAction(nameof(Index));
             }
-            else
-            {
-                payroll.GrossPay = employee.DailyRate * payroll.DaysWorked;
-                payroll.NetPay = payroll.GrossPay - payroll.Deduction;
 
-                if (payroll.NetPay < 0)
-                    ModelState.AddModelError("Deduction", "Deduction cannot exceed Gross Pay.");
+            payroll.GrossPay = employee.DailyRate * payroll.DaysWorked;
+            payroll.NetPay = payroll.GrossPay - payroll.Deduction;
+
+            if (payroll.NetPay < 0)
+            {
+                TempData["Error"] = "Deduction cannot exceed Gross Pay.";
+                return RedirectToAction(nameof(Index), new { employeeId = payroll.EmployeeID });
             }
 
             if (ModelState.IsValid)
@@ -66,21 +67,15 @@ namespace TechCoreSolutions.Controllers
                 return RedirectToAction(nameof(Index), new { employeeId = payroll.EmployeeID });
             }
 
-            ViewBag.EmployeeList = await _context.Employees.ToListAsync();
-            ViewBag.PreselectedEmployeeId = payroll.EmployeeID;
-            return View(payroll);
+            TempData["Error"] = "Failed to add payroll record. Please check the form.";
+            return RedirectToAction(nameof(Index), new { employeeId = payroll.EmployeeID });
         }
 
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
-            var payroll = await _context.Payrolls
-                .Include(p => p.Employee)
-                .FirstOrDefaultAsync(p => p.PayrollID == id);
-            if (payroll == null) return NotFound();
-
-            ViewBag.EmployeeList = await _context.Employees.ToListAsync();
-            return View(payroll);
+            // Just redirect to Index - the modal form is on the Index page
+            if (id == null) return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -92,15 +87,17 @@ namespace TechCoreSolutions.Controllers
             var employee = await _context.Employees.FindAsync(payroll.EmployeeID);
             if (employee == null)
             {
-                ModelState.AddModelError("", "Employee not found.");
+                TempData["Error"] = "Employee not found.";
+                return RedirectToAction(nameof(Index));
             }
-            else
-            {
-                payroll.GrossPay = employee.DailyRate * payroll.DaysWorked;
-                payroll.NetPay = payroll.GrossPay - payroll.Deduction;
 
-                if (payroll.NetPay < 0)
-                    ModelState.AddModelError("Deduction", "Deduction cannot exceed Gross Pay.");
+            payroll.GrossPay = employee.DailyRate * payroll.DaysWorked;
+            payroll.NetPay = payroll.GrossPay - payroll.Deduction;
+
+            if (payroll.NetPay < 0)
+            {
+                TempData["Error"] = "Deduction cannot exceed Gross Pay.";
+                return RedirectToAction(nameof(Index), new { employeeId = payroll.EmployeeID });
             }
 
             if (ModelState.IsValid)
@@ -120,8 +117,8 @@ namespace TechCoreSolutions.Controllers
                 return RedirectToAction(nameof(Index), new { employeeId = payroll.EmployeeID });
             }
 
-            ViewBag.EmployeeList = await _context.Employees.ToListAsync();
-            return View(payroll);
+            TempData["Error"] = "Failed to update payroll record. Please check the form.";
+            return RedirectToAction(nameof(Index), new { employeeId = payroll.EmployeeID });
         }
 
         public async Task<IActionResult> Delete(int? id)

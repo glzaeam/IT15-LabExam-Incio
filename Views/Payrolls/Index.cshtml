@@ -1,68 +1,220 @@
 @model IEnumerable<TechCoreSolutions.Models.Payroll>
-@{ ViewData["Title"] = "Payroll Records"; }
+@using TechCoreSolutions.Models
+@{ ViewData["Title"] = "Payroll"; }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:#0D1B2A;margin:0;">
-            @(ViewBag.FilteredEmployee != null
-                ? $"Payroll — {ViewBag.FilteredEmployee.FirstName} {ViewBag.FilteredEmployee.LastName}"
-                : "All Payroll Records")
-        </h2>
-        <p style="color:#718096;font-size:0.85rem;margin:4px 0 0;">@Model.Count() record(s) found</p>
-    </div>
-    <div class="d-flex gap-2">
-        @if (ViewBag.SelectedEmployeeId != null)
-        {
-            <a asp-action="Create" asp-route-employeeId="@ViewBag.SelectedEmployeeId" class="btn-tc-primary">
-                <i class="bi bi-plus-lg"></i> Add Payroll
-            </a>
-        }
-        else
-        {
-            <a asp-action="Create" class="btn-tc-primary">
-                <i class="bi bi-plus-lg"></i> Add Payroll
-            </a>
-        }
-        <a asp-controller="Employees" asp-action="Index" class="btn-tc-outline">
-            <i class="bi bi-people"></i> Employees
-        </a>
+<!-- Breadcrumb -->
+<div style="margin-bottom: 28px;">
+    <a href="#" style="font-size: 0.8rem; color: #718096; text-decoration: none;">
+        <i class="bi bi-receipt"></i> Payroll Records
+    </a>
+</div>
+
+<!-- Hero Section -->
+<div style="margin-bottom: 36px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 700; color: #0D1B2A; margin: 0 0 12px 0; line-height: 1.2;">
+                Manage payroll with<br />precision and clarity
+            </h1>
+            <p style="font-size: 0.9rem; color: #718096; margin: 0; max-width: 600px;">
+                Track earnings, deductions, and net pay for all team members in one centralized system.
+            </p>
+        </div>
     </div>
 </div>
 
-<div class="tc-card mb-4">
-    <div style="padding:16px 20px;">
-        <form method="get" class="d-flex align-items-center gap-3 flex-wrap">
-            <label style="font-size:0.8rem;font-weight:600;color:#718096;">Filter by Employee:</label>
-            <select name="employeeId" class="tc-form-control" style="width:auto;min-width:200px;">
-                <option value="">— All Employees —</option>
-                @foreach (var e in (IEnumerable<TechCoreSolutions.Models.Employee>)ViewBag.Employees)
-                {
-                    <option value="@e.EmployeeID"
-                        selected="@(ViewBag.SelectedEmployeeId?.ToString() == e.EmployeeID.ToString() ? "selected" : null)">
-                        @e.FirstName @e.LastName
-                    </option>
-                }
-            </select>
-            <button type="submit" class="btn-tc-outline"><i class="bi bi-funnel"></i> Filter</button>
-            @if (ViewBag.SelectedEmployeeId != null)
-            {
-                <a href="/Payrolls" style="font-size:0.82rem;color:#718096;text-decoration:none;">
-                    <i class="bi bi-x"></i> Clear
-                </a>
-            }
+<!-- Payroll Details Card -->
+<div class="tc-card" style="margin-bottom: 28px; background: white;">
+    <div style="padding: 20px 26px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <span class="tc-card-title" style="font-size: 1rem;">Payroll Details</span>
+            <p style="font-size: 0.8rem; color: #718096; margin: 4px 0 0; font-weight: 400;">
+                View and manage payroll records for all employees.
+            </p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button type="button" onclick="openAddPayrollModal()" style="background: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 9px; text-decoration: none; font-size: 0.875rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                <i class="bi bi-plus-lg"></i> Add Payroll
+            </button>
+            <button style="background: white; color: #6B6760; padding: 8px 14px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; cursor: pointer;">
+                Clear
+            </button>
+            <button style="background: white; color: #6B6760; padding: 8px 14px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; cursor: pointer;">
+                Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Payroll Modal -->
+<div id="addPayrollModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #0D1B2A; margin: 0;">
+                <i class="bi bi-plus-circle"></i> New Payroll Record
+            </h2>
+            <button type="button" onclick="closeAddPayrollModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #718096;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+
+        <form asp-action="Create" method="post" style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" style="color: #E53E3E; font-size: 0.9rem;"></div>
+            
+            <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Employee</label>
+                <select name="EmployeeID" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" onchange="computePayroll()">
+                    <option value="">— Select Employee —</option>
+                    @foreach (var e in (IEnumerable<TechCoreSolutions.Models.Employee>)ViewBag.EmployeeList)
+                    {
+                        <option value="@e.EmployeeID" data-rate="@e.DailyRate"
+                            selected="@(ViewBag.PreselectedEmployeeId?.ToString() == e.EmployeeID.ToString() ? "selected" : null)">
+                            @e.FirstName @e.LastName — ₱@e.DailyRate.ToString("N2")/day
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Payroll Date</label>
+                    <input name="Date" type="date" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Days Worked</label>
+                    <input name="DaysWorked" type="number" min="0" max="31" required id="daysWorked" oninput="computePayroll()" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Deduction (₱)</label>
+                    <input name="Deduction" type="number" step="0.01" min="0" id="deduction" oninput="computePayroll()" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                </div>
+            </div>
+
+            <div id="payPreview" style="display:none;margin-top:20px;background:#F4F7FB;border-radius:10px;padding:18px;">
+                <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#718096;margin-bottom:12px;">
+                    Computation Preview
+                </div>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <div>
+                        <div style="font-size:0.75rem;color:#718096;">Gross Pay</div>
+                        <div id="previewGross" style="font-size:1.1rem;font-weight:700;color:#0D1B2A;">₱0.00</div>
+                    </div>
+                    <div style="align-self:center;color:#ccc;font-size:1.2rem;">−</div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#718096;">Deduction</div>
+                        <div id="previewDeduct" style="font-size:1.1rem;font-weight:700;color:#E53E3E;">₱0.00</div>
+                    </div>
+                    <div style="align-self:center;color:#ccc;font-size:1.2rem;">=</div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#718096;">Net Pay</div>
+                        <div id="previewNet" style="font-size:1.3rem;font-weight:800;color:#00896F;">₱0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                <button type="button" onclick="closeAddPayrollModal()" style="background: white; color: #6B6760; padding: 10px 20px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif;">
+                    Cancel
+                </button>
+                <button type="submit" style="background: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif;">
+                    <i class="bi bi-check-lg"></i> Save Payroll
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Payroll Modal -->
+<div id="editPayrollModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #0D1B2A; margin: 0;">
+                <i class="bi bi-pencil-square"></i> Edit Payroll
+            </h2>
+            <button type="button" onclick="closeEditPayrollModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #718096;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+
+        <form asp-action="Edit" method="post" style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="editPayrollId" name="PayrollID" />
+            <div asp-validation-summary="ModelOnly" style="color: #E53E3E; font-size: 0.9rem;"></div>
+            
+            <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Employee</label>
+                <select id="editEmployeeId" name="EmployeeID" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" onchange="computeEditPayroll()">
+                    @foreach (var e in (IEnumerable<TechCoreSolutions.Models.Employee>)ViewBag.EmployeeList)
+                    {
+                        <option value="@e.EmployeeID" data-rate="@e.DailyRate">
+                            @e.FirstName @e.LastName — ₱@e.DailyRate.ToString("N2")/day
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Payroll Date</label>
+                    <input id="editDate" name="Date" type="date" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Days Worked</label>
+                    <input id="editDaysWorked" name="DaysWorked" type="number" min="0" max="31" oninput="computeEditPayroll()" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Deduction (₱)</label>
+                    <input id="editDeduction" name="Deduction" type="number" step="0.01" min="0" oninput="computeEditPayroll()" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                </div>
+            </div>
+
+            <div id="editPayPreview" style="margin-top:20px;background:#F4F7FB;border-radius:10px;padding:18px;">
+                <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#718096;margin-bottom:12px;">
+                    Current Computation
+                </div>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <div>
+                        <div style="font-size:0.75rem;color:#718096;">Gross Pay</div>
+                        <div id="editPreviewGross" style="font-size:1.1rem;font-weight:700;color:#0D1B2A;">₱0.00</div>
+                    </div>
+                    <div style="align-self:center;color:#ccc;font-size:1.2rem;">−</div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#718096;">Deduction</div>
+                        <div id="editPreviewDeduct" style="font-size:1.1rem;font-weight:700;color:#E53E3E;">₱0.00</div>
+                    </div>
+                    <div style="align-self:center;color:#ccc;font-size:1.2rem;">=</div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#718096;">Net Pay</div>
+                        <div id="editPreviewNet" style="font-size:1.3rem;font-weight:800;color:#00896F;">₱0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                <button type="button" onclick="closeEditPayrollModal()" style="background: white; color: #6B6760; padding: 10px 20px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif;">
+                    Cancel
+                </button>
+                <button type="submit" style="background: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif;">
+                    <i class="bi bi-check-lg"></i> Update Payroll
+                </button>
+            </div>
         </form>
     </div>
 </div>
 
 <div class="tc-card">
     <div class="tc-card-header">
-        <span class="tc-card-title"><i class="bi bi-cash-stack"></i> Payroll Transactions</span>
-        @if (Model.Any())
-        {
-            <span style="font-size:0.8rem;color:#718096;">
-                Total Net: <strong style="color:#00896F;">₱@Model.Sum(p => p.NetPay).ToString("N2")</strong>
-            </span>
-        }
+        <div>
+            <span class="tc-card-title"><i class="bi bi-cash-stack"></i> Payroll Transactions</span>
+            <p style="font-size: 0.8rem; color: #718096; margin: 4px 0 0; font-weight: 400;">
+                @Model.Count() record(s) found
+                @if (Model.Any())
+                {
+                    <span style="color: #2D6A4F; font-weight: 600;"> — Total Net: ₱@Model.Sum(p => p.NetPay).ToString("N2")</span>
+                }
+            </p>
+        </div>
     </div>
     @if (!Model.Any())
     {
@@ -99,13 +251,13 @@
                         <td>@p.DaysWorked day(s)</td>
                         <td>₱@p.GrossPay.ToString("N2")</td>
                         <td style="color:#E53E3E;">- ₱@p.Deduction.ToString("N2")</td>
-                        <td><span class="pay-badge">₱@p.NetPay.ToString("N2")</span></td>
+                        <td><span class="badge-pay">₱@p.NetPay.ToString("N2")</span></td>
                         <td>
-                            <div class="d-flex gap-2">
-                                <a asp-action="Edit" asp-route-id="@p.PayrollID" class="btn-tc-outline">
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" onclick="openEditPayrollModal(@p.PayrollID, @p.EmployeeID, '@p.Date.ToString("yyyy-MM-dd")', @p.DaysWorked, @p.Deduction)" class="btn-icon" style="background: white; color: #718096; border: 1px solid #E8E6E0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.15s;">
                                     <i class="bi bi-pencil"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@p.PayrollID" class="btn-tc-danger">
+                                </button>
+                                <a asp-action="Delete" asp-route-id="@p.PayrollID" class="btn-icon btn-icon-danger" style="background: white; color: #E57368; border: 1px solid #F5C6C2; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.15s;">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -116,3 +268,70 @@
         </table>
     }
 </div>
+
+<script>
+function openAddPayrollModal() {
+    document.getElementById('addPayrollModal').style.display = 'flex';
+}
+
+function closeAddPayrollModal() {
+    document.getElementById('addPayrollModal').style.display = 'none';
+}
+
+function openEditPayrollModal(id, empId, date, days, deduct) {
+    document.getElementById('editPayrollId').value = id;
+    document.getElementById('editEmployeeId').value = empId;
+    document.getElementById('editDate').value = date;
+    document.getElementById('editDaysWorked').value = days;
+    document.getElementById('editDeduction').value = deduct;
+    document.getElementById('editPayrollModal').style.display = 'flex';
+    computeEditPayroll();
+}
+
+function closeEditPayrollModal() {
+    document.getElementById('editPayrollModal').style.display = 'none';
+}
+
+function computePayroll() {
+    const sel = document.querySelector('[name="EmployeeID"]');
+    const opt = sel?.options[sel.selectedIndex];
+    const rate = parseFloat(opt?.dataset?.rate || 0);
+    const days = parseFloat(document.getElementById('daysWorked')?.value || 0);
+    const deduct = parseFloat(document.getElementById('deduction')?.value || 0);
+    const gross = rate * days;
+    const net = gross - deduct;
+    const fmt = v => '₱' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    document.getElementById('previewGross').textContent = fmt(gross);
+    document.getElementById('previewDeduct').textContent = fmt(deduct);
+    document.getElementById('previewNet').textContent = fmt(net);
+    document.getElementById('previewNet').style.color = net < 0 ? '#E53E3E' : '#00896F';
+    document.getElementById('payPreview').style.display = 'block';
+}
+
+function computeEditPayroll() {
+    const sel = document.getElementById('editEmployeeId');
+    const opt = sel?.options[sel.selectedIndex];
+    const rate = parseFloat(opt?.dataset?.rate || 0);
+    const days = parseFloat(document.getElementById('editDaysWorked')?.value || 0);
+    const deduct = parseFloat(document.getElementById('editDeduction')?.value || 0);
+    const gross = rate * days;
+    const net = gross - deduct;
+    const fmt = v => '₱' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    document.getElementById('editPreviewGross').textContent = fmt(gross);
+    document.getElementById('editPreviewDeduct').textContent = fmt(deduct);
+    document.getElementById('editPreviewNet').textContent = fmt(net);
+    document.getElementById('editPreviewNet').style.color = net < 0 ? '#E53E3E' : '#00896F';
+}
+
+document.getElementById('addPayrollModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeAddPayrollModal();
+    }
+});
+
+document.getElementById('editPayrollModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeEditPayrollModal();
+    }
+});
+</script>

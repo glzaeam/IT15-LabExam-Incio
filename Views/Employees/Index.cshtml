@@ -1,20 +1,158 @@
 @model IEnumerable<TechCoreSolutions.Models.Employee>
+@using TechCoreSolutions.Models
 @{ ViewData["Title"] = "Employees"; }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:#0D1B2A;margin:0;">
-            Employee Records
-        </h2>
-        <p style="color:#718096;font-size:0.85rem;margin:4px 0 0;">
-            @Model.Count() total employee(s) registered
-        </p>
-    </div>
-    <a asp-action="Create" class="btn-tc-primary">
-        <i class="bi bi-plus-lg"></i> Add Employee
+<!-- Breadcrumb -->
+<div style="margin-bottom: 28px;">
+    <a href="#" style="font-size: 0.8rem; color: #718096; text-decoration: none;">
+        <i class="bi bi-people"></i> Employee Records
     </a>
 </div>
 
+<!-- Hero Section -->
+<div style="margin-bottom: 36px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 700; color: #0D1B2A; margin: 0 0 12px 0; line-height: 1.2;">
+                Manage your team with a<br />cleaner employee workspace
+            </h1>
+            <p style="font-size: 0.9rem; color: #718096; margin: 0; max-width: 600px;">
+                Faster encoding, clearer rates, and cleaner actions for payroll-ready employee data.
+            </p>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <input type="text" placeholder="Search employee, position, or department" 
+                   style="padding: 10px 14px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; width: 280px; background: #fff; outline: none;" />
+            <button style="padding: 10px 18px; border: 1px solid #E8E6E0; background: #fff; border-radius: 9px; cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 6px; color: #6B6760;">
+                <i class="bi bi-funnel"></i> Filter
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Details Card -->
+<div class="tc-card" style="margin-bottom: 28px; background: white;">
+    <div style="padding: 20px 26px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <span class="tc-card-title" style="font-size: 1rem;">Employee Details</span>
+            <p style="font-size: 0.8rem; color: #718096; margin: 4px 0 0; font-weight: 400;">
+                Enter complete information for payroll and department tracking.
+            </p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button type="button" onclick="openAddEmployeeModal()" style="background: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 9px; text-decoration: none; font-size: 0.875rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                <i class="bi bi-plus-lg"></i> Add Employee
+            </button>
+            <button style="background: white; color: #6B6760; padding: 8px 14px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; cursor: pointer;">
+                Clear
+            </button>
+            <button style="background: white; color: #6B6760; padding: 8px 14px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; cursor: pointer;">
+                Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Employee Modal -->
+<div id="addEmployeeModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #0D1B2A; margin: 0;">
+                <i class="bi bi-person-plus"></i> New Employee
+            </h2>
+            <button type="button" onclick="closeAddEmployeeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #718096;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+
+        <form asp-action="Create" method="post" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" style="grid-column: 1 / 3; color: #E53E3E; font-size: 0.9rem;"></div>
+            
+            <div style="grid-column: 1 / 2;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">First Name</label>
+                <input type="text" name="FirstName" placeholder="e.g. Juan" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+            <div style="grid-column: 2 / 3;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Last Name</label>
+                <input type="text" name="LastName" placeholder="e.g. Dela Cruz" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+            <div style="grid-column: 1 / 3;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Position</label>
+                <input type="text" name="Position" placeholder="e.g. Software Engineer" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+            <div style="grid-column: 1 / 2;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Department</label>
+                <input type="text" name="Department" placeholder="e.g. IT" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+            <div style="grid-column: 2 / 3;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Daily Rate (₱)</label>
+                <input type="number" step="0.01" name="DailyRate" placeholder="0.00" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+
+            <div style="grid-column: 1 / 3; display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                <button type="button" onclick="closeAddEmployeeModal()" style="background: white; color: #6B6760; padding: 10px 20px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif;">
+                    Cancel
+                </button>
+                <button type="submit" style="background: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif;">
+                    <i class="bi bi-check-lg"></i> Save Employee
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Employee Modal -->
+<div id="editEmployeeModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #0D1B2A; margin: 0;">
+                <i class="bi bi-pencil-square"></i> Edit Employee
+            </h2>
+            <button type="button" onclick="closeEditEmployeeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #718096;">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+
+        <form asp-action="Edit" method="post" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="editEmployeeId" name="EmployeeID" />
+            <div asp-validation-summary="ModelOnly" style="grid-column: 1 / 3; color: #E53E3E; font-size: 0.9rem;"></div>
+            
+            <div style="grid-column: 1 / 2;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">First Name</label>
+                <input type="text" id="editFirstName" name="FirstName" placeholder="e.g. Juan" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+            <div style="grid-column: 2 / 3;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Last Name</label>
+                <input type="text" id="editLastName" name="LastName" placeholder="e.g. Dela Cruz" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+            <div style="grid-column: 1 / 3;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Position</label>
+                <input type="text" id="editPosition" name="Position" placeholder="e.g. Software Engineer" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+            <div style="grid-column: 1 / 2;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Department</label>
+                <input type="text" id="editDepartment" name="Department" placeholder="e.g. IT" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+            <div style="grid-column: 2 / 3;">
+                <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Daily Rate (₱)</label>
+                <input type="number" step="0.01" id="editDailyRate" name="DailyRate" placeholder="0.00" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+            </div>
+
+            <div style="grid-column: 1 / 3; display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                <button type="button" onclick="closeEditEmployeeModal()" style="background: white; color: #6B6760; padding: 10px 20px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif;">
+                    Cancel
+                </button>
+                <button type="submit" style="background: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 9px; font-size: 0.875rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif;">
+                    <i class="bi bi-check-lg"></i> Update Employee
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Employees Table Card -->
 <div class="tc-card">
     <div class="tc-card-header">
         <span class="tc-card-title"><i class="bi bi-people"></i> All Employees</span>
@@ -31,11 +169,12 @@
         <table class="tc-table">
             <thead>
                 <tr>
-                    <th>#ID</th>
-                    <th>Name</th>
+                    <th>Employee ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
                     <th>Position</th>
                     <th>Department</th>
-                    <th>Daily Rate</th>
+                    <th>Daily Rate (₱)</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -44,19 +183,17 @@
                 {
                     <tr>
                         <td style="color:#718096;font-size:0.8rem;">EMP-@emp.EmployeeID.ToString("D3")</td>
-                        <td><div style="font-weight:600;">@emp.FirstName @emp.LastName</div></td>
+                        <td>@emp.FirstName</td>
+                        <td>@emp.LastName</td>
                         <td>@emp.Position</td>
-                        <td><span class="dept-badge">@emp.Department</span></td>
-                        <td><span class="pay-badge">₱@emp.DailyRate.ToString("N2")</span></td>
+                        <td><span class="badge-dept">@emp.Department</span></td>
+                        <td><span class="badge-pay">₱@emp.DailyRate.ToString("N2")</span></td>
                         <td>
-                            <div class="d-flex gap-2">
-                                <a asp-controller="Payrolls" asp-action="Index" asp-route-employeeId="@emp.EmployeeID" class="btn-tc-outline">
-                                    <i class="bi bi-cash"></i> Payroll
-                                </a>
-                                <a asp-action="Edit" asp-route-id="@emp.EmployeeID" class="btn-tc-outline">
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" onclick="openEditEmployeeModal(@emp.EmployeeID, '@emp.FirstName', '@emp.LastName', '@emp.Position', '@emp.Department', @emp.DailyRate)" class="btn-icon">
                                     <i class="bi bi-pencil"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@emp.EmployeeID" class="btn-tc-danger">
+                                </button>
+                                <a asp-action="Delete" asp-route-id="@emp.EmployeeID" class="btn-icon btn-icon-danger">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -67,3 +204,44 @@
         </table>
     }
 </div>
+
+<script>
+function openAddEmployeeModal() {
+    document.getElementById('addEmployeeModal').style.display = 'flex';
+}
+
+function closeAddEmployeeModal() {
+    document.getElementById('addEmployeeModal').style.display = 'none';
+}
+
+function openEditEmployeeModal(id, firstName, lastName, position, department, dailyRate) {
+    document.getElementById('editEmployeeId').value = id;
+    document.getElementById('editFirstName').value = firstName;
+    document.getElementById('editLastName').value = lastName;
+    document.getElementById('editPosition').value = position;
+    document.getElementById('editDepartment').value = department;
+    document.getElementById('editDailyRate').value = dailyRate;
+    document.getElementById('editEmployeeModal').style.display = 'flex';
+}
+
+function closeEditEmployeeModal() {
+    document.getElementById('editEmployeeModal').style.display = 'none';
+}
+
+// Close modal when clicking outside of it
+document.getElementById('addEmployeeModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeAddEmployeeModal();
+    }
+});
+
+document.getElementById('editEmployeeModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeEditEmployeeModal();
+    }
+});
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -11,13 +11,13 @@
 
         :root {
             --white: #ffffff;
-            --bg: #F7F6F3;
+            --bg: #ffffff;
             --surface: #ffffff;
             --border: #E8E6E0;
-            --border-soft: #F0EEE9;
+            --border-soft: #EEECE7;
             --text: #1A1917;
             --text-muted: #6B6760;
-            --text-hint: #9E9B96;
+            --text-hint: #A09D97;
             --accent: #1A1917;
             --accent-green: #2D6A4F;
             --accent-green-light: #EAF4EE;
@@ -25,6 +25,11 @@
             --accent-red: #C0392B;
             --sidebar-w: 260px;
             --topbar-h: 60px;
+
+            /* Card shadows — layered for depth */
+            --shadow-card: 0 1px 3px rgba(26,25,23,0.06), 0 4px 16px rgba(26,25,23,0.07);
+            --shadow-card-hover: 0 2px 6px rgba(26,25,23,0.07), 0 8px 28px rgba(26,25,23,0.10);
+            --shadow-sm: 0 1px 2px rgba(26,25,23,0.05), 0 2px 8px rgba(26,25,23,0.06);
         }
 
         body {
@@ -44,6 +49,7 @@
             border-right: 1px solid var(--border);
             display: flex; flex-direction: column;
             z-index: 100;
+            box-shadow: 2px 0 16px rgba(26,25,23,0.05);
         }
 
         .sidebar-brand {
@@ -61,6 +67,7 @@
             background: var(--text);
             border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(26,25,23,0.18);
         }
 
         .brand-dot span {
@@ -138,6 +145,7 @@
             padding: 0 36px;
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top: 0; z-index: 50;
+            box-shadow: 0 1px 8px rgba(26,25,23,0.05);
         }
 
         .topbar-left {
@@ -173,7 +181,7 @@
             border-radius: 50%;
         }
 
-        .page-content { padding: 32px 36px; }
+        .page-content { padding: 36px 40px; }
 
         /* ── ALERTS ── */
         .tc-alert {
@@ -199,31 +207,70 @@
 
         /* ── CARDS ── */
         .tc-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
+            background: var(--white);
+            border: 1px solid rgba(26,25,23,0.08);
+            border-radius: 16px;
             overflow: hidden;
+            box-shadow: var(--shadow-card);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .tc-card:hover {
+            box-shadow: var(--shadow-card-hover);
         }
 
         .tc-card-header {
-            padding: 18px 24px;
+            padding: 20px 26px;
             border-bottom: 1px solid var(--border-soft);
             display: flex; align-items: center; justify-content: space-between;
+            background: var(--white);
         }
 
         .tc-card-title {
-            font-size: 0.875rem; font-weight: 600;
+            font-size: 0.9rem; font-weight: 600;
             color: var(--text);
             display: flex; align-items: center; gap: 8px;
         }
 
         .tc-card-title i { color: var(--text-muted); font-size: 14px; }
 
+        /* ── STAT CARDS (for dashboard metrics) ── */
+        .tc-stat-card {
+            background: var(--white);
+            border: 1px solid rgba(26,25,23,0.07);
+            border-radius: 14px;
+            padding: 20px 22px;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s ease, transform 0.15s ease;
+        }
+
+        .tc-stat-card:hover {
+            box-shadow: var(--shadow-card);
+            transform: translateY(-1px);
+        }
+
+        .tc-stat-label {
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 0.09em; text-transform: uppercase;
+            color: var(--text-hint); margin-bottom: 8px;
+        }
+
+        .tc-stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem; font-weight: 500;
+            color: var(--text); line-height: 1.1;
+        }
+
+        .tc-stat-sub {
+            font-size: 0.75rem; color: var(--text-hint);
+            margin-top: 4px;
+        }
+
         /* ── TABLE ── */
         .tc-table { width: 100%; border-collapse: collapse; }
 
         .tc-table thead th {
-            padding: 11px 20px;
+            padding: 12px 22px;
             font-size: 0.68rem; font-weight: 600;
             letter-spacing: 0.1em; text-transform: uppercase;
             color: var(--text-hint);
@@ -234,73 +281,87 @@
 
         .tc-table tbody tr {
             border-bottom: 1px solid var(--border-soft);
-            transition: background 0.1s;
+            transition: background 0.12s;
         }
 
         .tc-table tbody tr:hover { background: #FAFAF8; }
         .tc-table tbody tr:last-child { border-bottom: none; }
-        .tc-table td { padding: 14px 20px; font-size: 0.875rem; }
+        .tc-table td { padding: 15px 22px; font-size: 0.875rem; }
 
         /* ── BUTTONS ── */
         .btn-tc-primary {
             display: inline-flex; align-items: center; gap: 6px;
             background: var(--text); color: var(--white);
-            border: none; border-radius: 8px;
+            border: none; border-radius: 9px;
             padding: 9px 18px;
             font-size: 0.8rem; font-weight: 500;
             font-family: 'DM Sans', sans-serif;
             text-decoration: none; cursor: pointer;
-            transition: opacity 0.15s;
+            transition: opacity 0.15s, box-shadow 0.15s;
             letter-spacing: 0.01em;
+            box-shadow: 0 1px 3px rgba(26,25,23,0.2), 0 2px 8px rgba(26,25,23,0.12);
         }
 
-        .btn-tc-primary:hover { opacity: 0.82; color: var(--white); }
+        .btn-tc-primary:hover {
+            opacity: 0.85;
+            color: var(--white);
+            box-shadow: 0 2px 6px rgba(26,25,23,0.22), 0 4px 14px rgba(26,25,23,0.15);
+        }
 
         .btn-tc-outline {
             display: inline-flex; align-items: center; gap: 6px;
-            background: transparent; color: var(--text-muted);
-            border: 1px solid var(--border); border-radius: 8px;
+            background: var(--white); color: var(--text-muted);
+            border: 1px solid var(--border); border-radius: 9px;
             padding: 7px 14px;
             font-size: 0.8rem; font-weight: 500;
             font-family: 'DM Sans', sans-serif;
             text-decoration: none; cursor: pointer;
             transition: all 0.15s;
+            box-shadow: 0 1px 2px rgba(26,25,23,0.04);
         }
 
         .btn-tc-outline:hover {
             background: var(--bg);
             color: var(--text);
-            border-color: #D0CEC8;
+            border-color: #C8C6C0;
+            box-shadow: 0 1px 4px rgba(26,25,23,0.08);
         }
 
         .btn-tc-danger {
             display: inline-flex; align-items: center; gap: 6px;
-            background: transparent; color: var(--accent-red);
-            border: 1px solid #F5C6C2; border-radius: 8px;
+            background: var(--white); color: var(--accent-red);
+            border: 1px solid #F5C6C2; border-radius: 9px;
             padding: 7px 14px;
             font-size: 0.8rem; font-weight: 500;
             font-family: 'DM Sans', sans-serif;
             text-decoration: none; cursor: pointer;
             transition: all 0.15s;
+            box-shadow: 0 1px 2px rgba(26,25,23,0.04);
         }
 
         .btn-tc-danger:hover {
             background: var(--accent-red-light);
             color: var(--accent-red);
+            box-shadow: 0 1px 4px rgba(192,57,43,0.1);
         }
 
         .btn-icon {
             display: inline-flex; align-items: center; justify-content: center;
             width: 32px; height: 32px;
-            border-radius: 7px; border: 1px solid var(--border);
-            background: transparent; cursor: pointer;
+            border-radius: 8px; border: 1px solid var(--border);
+            background: var(--white); cursor: pointer;
             color: var(--text-muted);
             text-decoration: none;
             transition: all 0.15s;
             font-size: 13px;
+            box-shadow: 0 1px 2px rgba(26,25,23,0.04);
         }
 
-        .btn-icon:hover { background: var(--bg); color: var(--text); }
+        .btn-icon:hover {
+            background: var(--bg);
+            color: var(--text);
+            box-shadow: 0 1px 4px rgba(26,25,23,0.08);
+        }
 
         .btn-icon-danger {
             border-color: #F5C6C2; color: #E57368;
@@ -332,11 +393,12 @@
             background: var(--white);
             outline: none;
             transition: border-color 0.15s, box-shadow 0.15s;
+            box-shadow: 0 1px 2px rgba(26,25,23,0.04);
         }
 
         .tc-input:focus {
             border-color: #ABAAA6;
-            box-shadow: 0 0 0 3px rgba(26,25,23,0.06);
+            box-shadow: 0 0 0 3px rgba(26,25,23,0.06), 0 1px 2px rgba(26,25,23,0.04);
         }
 
         /* ── BADGES ── */
@@ -367,12 +429,12 @@
         /* ── PAGE HEADER ── */
         .page-header {
             display: flex; align-items: flex-end; justify-content: space-between;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .page-title {
             font-family: 'Playfair Display', serif;
-            font-size: 1.6rem; font-weight: 500;
+            font-size: 1.65rem; font-weight: 500;
             color: var(--text); letter-spacing: -0.5px;
             line-height: 1.2;
         }
@@ -427,6 +489,12 @@
         {
             <div class="tc-alert tc-alert-success">
                 <i class="bi bi-check-circle"></i> @TempData["Success"]
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="tc-alert tc-alert-danger">
+                <i class="bi bi-exclamation-circle"></i> @TempData["Error"]
             </div>
         }
         @RenderBody()

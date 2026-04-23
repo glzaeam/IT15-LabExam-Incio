@@ -21,7 +21,8 @@ namespace TechCoreSolutions.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            // Just redirect to Index - the modal form is on the Index page
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -35,15 +36,17 @@ namespace TechCoreSolutions.Controllers
                 TempData["Success"] = "Employee added successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            return View(employee);
+            
+            // If there are validation errors, redirect to Index with error message
+            TempData["Error"] = "Failed to add employee. Please check the form.";
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
-            var employee = await _context.Employees.FindAsync(id);
-            if (employee == null) return NotFound();
-            return View(employee);
+            // Just redirect to Index - the modal form is on the Index page
+            if (id == null) return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -68,7 +71,10 @@ namespace TechCoreSolutions.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(employee);
+            
+            // If there are validation errors, redirect to Index with error message
+            TempData["Error"] = "Failed to update employee. Please check the form.";
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Delete(int? id)
