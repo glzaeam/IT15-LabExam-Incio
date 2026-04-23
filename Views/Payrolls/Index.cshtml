@@ -1,0 +1,118 @@
+@model IEnumerable<TechCoreSolutions.Models.Payroll>
+@{ ViewData["Title"] = "Payroll Records"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:#0D1B2A;margin:0;">
+            @(ViewBag.FilteredEmployee != null
+                ? $"Payroll — {ViewBag.FilteredEmployee.FirstName} {ViewBag.FilteredEmployee.LastName}"
+                : "All Payroll Records")
+        </h2>
+        <p style="color:#718096;font-size:0.85rem;margin:4px 0 0;">@Model.Count() record(s) found</p>
+    </div>
+    <div class="d-flex gap-2">
+        @if (ViewBag.SelectedEmployeeId != null)
+        {
+            <a asp-action="Create" asp-route-employeeId="@ViewBag.SelectedEmployeeId" class="btn-tc-primary">
+                <i class="bi bi-plus-lg"></i> Add Payroll
+            </a>
+        }
+        else
+        {
+            <a asp-action="Create" class="btn-tc-primary">
+                <i class="bi bi-plus-lg"></i> Add Payroll
+            </a>
+        }
+        <a asp-controller="Employees" asp-action="Index" class="btn-tc-outline">
+            <i class="bi bi-people"></i> Employees
+        </a>
+    </div>
+</div>
+
+<div class="tc-card mb-4">
+    <div style="padding:16px 20px;">
+        <form method="get" class="d-flex align-items-center gap-3 flex-wrap">
+            <label style="font-size:0.8rem;font-weight:600;color:#718096;">Filter by Employee:</label>
+            <select name="employeeId" class="tc-form-control" style="width:auto;min-width:200px;">
+                <option value="">— All Employees —</option>
+                @foreach (var e in (IEnumerable<TechCoreSolutions.Models.Employee>)ViewBag.Employees)
+                {
+                    <option value="@e.EmployeeID"
+                        selected="@(ViewBag.SelectedEmployeeId?.ToString() == e.EmployeeID.ToString() ? "selected" : null)">
+                        @e.FirstName @e.LastName
+                    </option>
+                }
+            </select>
+            <button type="submit" class="btn-tc-outline"><i class="bi bi-funnel"></i> Filter</button>
+            @if (ViewBag.SelectedEmployeeId != null)
+            {
+                <a href="/Payrolls" style="font-size:0.82rem;color:#718096;text-decoration:none;">
+                    <i class="bi bi-x"></i> Clear
+                </a>
+            }
+        </form>
+    </div>
+</div>
+
+<div class="tc-card">
+    <div class="tc-card-header">
+        <span class="tc-card-title"><i class="bi bi-cash-stack"></i> Payroll Transactions</span>
+        @if (Model.Any())
+        {
+            <span style="font-size:0.8rem;color:#718096;">
+                Total Net: <strong style="color:#00896F;">₱@Model.Sum(p => p.NetPay).ToString("N2")</strong>
+            </span>
+        }
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-cash-stack"></i>
+            <p>No payroll records found.</p>
+        </div>
+    }
+    else
+    {
+        <table class="tc-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Employee</th>
+                    <th>Date</th>
+                    <th>Days Worked</th>
+                    <th>Gross Pay</th>
+                    <th>Deduction</th>
+                    <th>Net Pay</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td style="color:#718096;font-size:0.78rem;">PR-@p.PayrollID.ToString("D4")</td>
+                        <td>
+                            <div style="font-weight:600;">@p.Employee?.FirstName @p.Employee?.LastName</div>
+                            <div style="font-size:0.75rem;color:#718096;">@p.Employee?.Position</div>
+                        </td>
+                        <td>@p.Date.ToString("MMM dd, yyyy")</td>
+                        <td>@p.DaysWorked day(s)</td>
+                        <td>₱@p.GrossPay.ToString("N2")</td>
+                        <td style="color:#E53E3E;">- ₱@p.Deduction.ToString("N2")</td>
+                        <td><span class="pay-badge">₱@p.NetPay.ToString("N2")</span></td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a asp-action="Edit" asp-route-id="@p.PayrollID" class="btn-tc-outline">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@p.PayrollID" class="btn-tc-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

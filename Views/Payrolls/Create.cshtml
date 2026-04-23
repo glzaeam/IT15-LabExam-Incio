@@ -1,0 +1,105 @@
+@model TechCoreSolutions.Models.Payroll
+@{ ViewData["Title"] = "Add Payroll"; }
+
+<div class="mb-4">
+    <a asp-action="Index" style="color:#718096;font-size:0.85rem;text-decoration:none;">
+        <i class="bi bi-arrow-left"></i> Back to Payroll
+    </a>
+</div>
+
+<div class="tc-card" style="max-width:640px;">
+    <div class="tc-card-header">
+        <span class="tc-card-title"><i class="bi bi-plus-circle"></i> New Payroll Record</span>
+    </div>
+    <div style="padding:28px;">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="tc-alert tc-alert-danger"></div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="tc-form-label">Employee</label>
+                    <select asp-for="EmployeeID" class="tc-form-control">
+                        <option value="">— Select Employee —</option>
+                        @foreach (var e in (IEnumerable<TechCoreSolutions.Models.Employee>)ViewBag.EmployeeList)
+                        {
+                            <option value="@e.EmployeeID" data-rate="@e.DailyRate"
+                                selected="@(ViewBag.PreselectedEmployeeId?.ToString() == e.EmployeeID.ToString() ? "selected" : null)">
+                                @e.FirstName @e.LastName — ₱@e.DailyRate.ToString("N2")/day
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="EmployeeID" style="color:#E53E3E;font-size:0.78rem;"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="tc-form-label">Payroll Date</label>
+                    <input asp-for="Date" class="tc-form-control" type="date" />
+                    <span asp-validation-for="Date" style="color:#E53E3E;font-size:0.78rem;"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="tc-form-label">Days Worked</label>
+                    <input asp-for="DaysWorked" class="tc-form-control" type="number" min="0" max="31"
+                           id="daysWorked" oninput="computePayroll()" />
+                    <span asp-validation-for="DaysWorked" style="color:#E53E3E;font-size:0.78rem;"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="tc-form-label">Deduction (₱)</label>
+                    <input asp-for="Deduction" class="tc-form-control" type="number" step="0.01" min="0"
+                           id="deduction" oninput="computePayroll()" />
+                    <span asp-validation-for="Deduction" style="color:#E53E3E;font-size:0.78rem;"></span>
+                </div>
+            </div>
+
+            <div id="payPreview" style="display:none;margin-top:20px;background:#F4F7FB;border-radius:10px;padding:18px;">
+                <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#718096;margin-bottom:12px;">
+                    Computation Preview
+                </div>
+                <div class="d-flex gap-4 flex-wrap">
+                    <div>
+                        <div style="font-size:0.75rem;color:#718096;">Gross Pay</div>
+                        <div id="previewGross" style="font-size:1.1rem;font-weight:700;color:#0D1B2A;">₱0.00</div>
+                    </div>
+                    <div style="align-self:center;color:#ccc;font-size:1.2rem;">−</div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#718096;">Deduction</div>
+                        <div id="previewDeduct" style="font-size:1.1rem;font-weight:700;color:#E53E3E;">₱0.00</div>
+                    </div>
+                    <div style="align-self:center;color:#ccc;font-size:1.2rem;">=</div>
+                    <div>
+                        <div style="font-size:0.75rem;color:#718096;">Net Pay</div>
+                        <div id="previewNet" style="font-size:1.3rem;font-weight:800;color:#00896F;">₱0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 mt-4">
+                <button type="submit" class="btn-tc-primary">
+                    <i class="bi bi-check-lg"></i> Save Payroll
+                </button>
+                <a asp-action="Index" class="btn-tc-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function computePayroll() {
+    const sel = document.querySelector('[name="EmployeeID"]');
+    const opt = sel?.options[sel.selectedIndex];
+    const rate = parseFloat(opt?.dataset?.rate || 0);
+    const days = parseFloat(document.getElementById('daysWorked')?.value || 0);
+    const deduct = parseFloat(document.getElementById('deduction')?.value || 0);
+    const gross = rate * days;
+    const net = gross - deduct;
+    const fmt = v => '₱' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    document.getElementById('previewGross').textContent = fmt(gross);
+    document.getElementById('previewDeduct').textContent = fmt(deduct);
+    document.getElementById('previewNet').textContent = fmt(net);
+    document.getElementById('previewNet').style.color = net < 0 ? '#E53E3E' : '#00896F';
+    document.getElementById('payPreview').style.display = 'block';
+}
+document.querySelector('[name="EmployeeID"]')?.addEventListener('change', computePayroll);
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,39 @@
+@model TechCoreSolutions.Models.Employee
+@{ ViewData["Title"] = "Delete Employee"; }
+
+<div class="mb-4">
+    <a asp-action="Index" style="color:#718096;font-size:0.85rem;text-decoration:none;">
+        <i class="bi bi-arrow-left"></i> Back to Employees
+    </a>
+</div>
+
+<div class="tc-card" style="max-width:500px;">
+    <div class="tc-card-header">
+        <span class="tc-card-title" style="color:#E53E3E;">
+            <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+        </span>
+    </div>
+    <div style="padding:28px;">
+        <div class="tc-alert tc-alert-danger">
+            <i class="bi bi-info-circle"></i>
+            This will permanently delete the employee and <strong>all associated payroll records</strong>.
+        </div>
+        <table style="width:100%;font-size:0.875rem;">
+            <tr><td style="color:#718096;padding:6px 0;width:40%;">Name</td>
+                <td><strong>@Model.FirstName @Model.LastName</strong></td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Position</td>
+                <td>@Model.Position</td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Department</td>
+                <td>@Model.Department</td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Daily Rate</td>
+                <td>₱@Model.DailyRate.ToString("N2")</td></tr>
+        </table>
+        <form asp-action="Delete" method="post" class="d-flex gap-3 mt-4">
+            @Html.AntiForgeryToken()
+            <button type="submit" style="background:#E53E3E;color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:0.83rem;font-weight:600;cursor:pointer;">
+                <i class="bi bi-trash"></i> Yes, Delete
+            </button>
+            <a asp-action="Index" class="btn-tc-outline">Cancel</a>
+        </form>
+    </div>
+</div>

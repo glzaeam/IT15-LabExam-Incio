@@ -1,0 +1,43 @@
+@model TechCoreSolutions.Models.Payroll
+@{ ViewData["Title"] = "Delete Payroll"; }
+
+<div class="mb-4">
+    <a asp-action="Index" asp-route-employeeId="@Model.EmployeeID"
+       style="color:#718096;font-size:0.85rem;text-decoration:none;">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="tc-card" style="max-width:500px;">
+    <div class="tc-card-header">
+        <span class="tc-card-title" style="color:#E53E3E;">
+            <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+        </span>
+    </div>
+    <div style="padding:28px;">
+        <div class="tc-alert tc-alert-danger">
+            <i class="bi bi-info-circle"></i> This will permanently delete this payroll record.
+        </div>
+        <table style="width:100%;font-size:0.875rem;">
+            <tr><td style="color:#718096;padding:6px 0;width:40%;">Employee</td>
+                <td><strong>@Model.Employee?.FirstName @Model.Employee?.LastName</strong></td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Date</td>
+                <td>@Model.Date.ToString("MMMM dd, yyyy")</td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Days Worked</td>
+                <td>@Model.DaysWorked</td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Gross Pay</td>
+                <td>₱@Model.GrossPay.ToString("N2")</td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Deduction</td>
+                <td>₱@Model.Deduction.ToString("N2")</td></tr>
+            <tr><td style="color:#718096;padding:6px 0;">Net Pay</td>
+                <td><strong style="color:#00896F;">₱@Model.NetPay.ToString("N2")</strong></td></tr>
+        </table>
+        <form asp-action="Delete" method="post" class="d-flex gap-3 mt-4">
+            @Html.AntiForgeryToken()
+            <button type="submit" style="background:#E53E3E;color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:0.83rem;font-weight:600;cursor:pointer;">
+                <i class="bi bi-trash"></i> Yes, Delete
+            </button>
+            <a asp-action="Index" asp-route-employeeId="@Model.EmployeeID" class="btn-tc-outline">Cancel</a>
+        </form>
+    </div>
+</div>

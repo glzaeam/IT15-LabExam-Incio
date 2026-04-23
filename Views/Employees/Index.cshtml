@@ -1,0 +1,69 @@
+@model IEnumerable<TechCoreSolutions.Models.Employee>
+@{ ViewData["Title"] = "Employees"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:#0D1B2A;margin:0;">
+            Employee Records
+        </h2>
+        <p style="color:#718096;font-size:0.85rem;margin:4px 0 0;">
+            @Model.Count() total employee(s) registered
+        </p>
+    </div>
+    <a asp-action="Create" class="btn-tc-primary">
+        <i class="bi bi-plus-lg"></i> Add Employee
+    </a>
+</div>
+
+<div class="tc-card">
+    <div class="tc-card-header">
+        <span class="tc-card-title"><i class="bi bi-people"></i> All Employees</span>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p>No employees found. Add your first employee to get started.</p>
+        </div>
+    }
+    else
+    {
+        <table class="tc-table">
+            <thead>
+                <tr>
+                    <th>#ID</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Daily Rate</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var emp in Model)
+                {
+                    <tr>
+                        <td style="color:#718096;font-size:0.8rem;">EMP-@emp.EmployeeID.ToString("D3")</td>
+                        <td><div style="font-weight:600;">@emp.FirstName @emp.LastName</div></td>
+                        <td>@emp.Position</td>
+                        <td><span class="dept-badge">@emp.Department</span></td>
+                        <td><span class="pay-badge">₱@emp.DailyRate.ToString("N2")</span></td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a asp-controller="Payrolls" asp-action="Index" asp-route-employeeId="@emp.EmployeeID" class="btn-tc-outline">
+                                    <i class="bi bi-cash"></i> Payroll
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@emp.EmployeeID" class="btn-tc-outline">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@emp.EmployeeID" class="btn-tc-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
