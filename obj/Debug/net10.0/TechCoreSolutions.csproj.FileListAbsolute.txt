@@ -228,3 +228,4 @@ C:\Users\Honey Mae Incio\TechCoreSolutions\bin\Debug\net10.0\publish\appsettings
 C:\Users\Honey Mae Incio\TechCoreSolutions\bin\Debug\net10.0\publish\TechCoreSolutions.deps.json
 C:\Users\Honey Mae Incio\TechCoreSolutions\bin\Debug\net10.0\publish\TechCoreSolutions.runtimeconfig.json
 C:\Users\Honey Mae Incio\TechCoreSolutions\bin\Debug\net10.0\publish\TechCoreSolutions.staticwebassets.endpoints.json
+C:\Users\Honey Mae Incio\TechCoreSolutions\obj\Debug\net10.0\TechCoreSolutions.sourcelink.json
