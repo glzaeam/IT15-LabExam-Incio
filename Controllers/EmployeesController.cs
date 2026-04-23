@@ -14,17 +14,19 @@ namespace TechCoreSolutions.Controllers
             _context = context;
         }
 
+        // GET: /Employees
         public async Task<IActionResult> Index()
         {
             return View(await _context.Employees.ToListAsync());
         }
 
+        // GET: /Employees/Create
         public IActionResult Create()
         {
-            // Just redirect to Index - the modal form is on the Index page
-            return RedirectToAction(nameof(Index));
+            return View();
         }
 
+        // POST: /Employees/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Employee employee)
@@ -36,19 +38,23 @@ namespace TechCoreSolutions.Controllers
                 TempData["Success"] = "Employee added successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            
-            // If there are validation errors, redirect to Index with error message
+
             TempData["Error"] = "Failed to add employee. Please check the form.";
-            return RedirectToAction(nameof(Index));
+            return View(employee);
         }
 
+        // GET: /Employees/Edit/5  ← THIS WAS THE BUG - was redirecting instead of returning the view
         public async Task<IActionResult> Edit(int? id)
         {
-            // Just redirect to Index - the modal form is on the Index page
-            if (id == null) return RedirectToAction(nameof(Index));
-            return RedirectToAction(nameof(Index));
+            if (id == null) return NotFound();
+
+            var employee = await _context.Employees.FindAsync(id);
+            if (employee == null) return NotFound();
+
+            return View(employee); // ← Must return the employee to the Edit view
         }
 
+        // POST: /Employees/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Employee employee)
@@ -62,6 +68,7 @@ namespace TechCoreSolutions.Controllers
                     _context.Update(employee);
                     await _context.SaveChangesAsync();
                     TempData["Success"] = "Employee updated successfully!";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -69,23 +76,37 @@ namespace TechCoreSolutions.Controllers
                         return NotFound();
                     throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
-            
-            // If there are validation errors, redirect to Index with error message
-            TempData["Error"] = "Failed to update employee. Please check the form.";
-            return RedirectToAction(nameof(Index));
-        }
 
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-            var employee = await _context.Employees
-                .FirstOrDefaultAsync(m => m.EmployeeID == id);
-            if (employee == null) return NotFound();
+            TempData["Error"] = "Failed to update employee. Please check the form.";
             return View(employee);
         }
 
+        // GET: /Employees/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(m => m.EmployeeID == id);
+            if (employee == null) return NotFound();
+
+            return View(employee);
+        }
+
+        // GET: /Employees/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(m => m.EmployeeID == id);
+            if (employee == null) return NotFound();
+
+            return View(employee);
+        }
+
+        // POST: /Employees/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

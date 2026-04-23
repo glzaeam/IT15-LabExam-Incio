@@ -9,6 +9,20 @@
     </a>
 </div>
 
+<!-- TempData Alerts -->
+@if (TempData["Success"] != null)
+{
+    <div style="background: #D1FAE5; border: 1px solid #6EE7B7; color: #065F46; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 0.875rem; display: flex; align-items: center; gap: 8px;">
+        <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 0.875rem; display: flex; align-items: center; gap: 8px;">
+        <i class="bi bi-exclamation-circle-fill"></i> @TempData["Error"]
+    </div>
+}
+
 <!-- Hero Section -->
 <div style="margin-bottom: 36px;">
     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -33,15 +47,26 @@
             </p>
         </div>
         <div style="display: flex; gap: 12px;">
+            <!-- Employee Filter -->
+            <form method="get" asp-action="Index" style="display: flex; gap: 8px; align-items: center;">
+                <select name="employeeId" onchange="this.form.submit()"
+                    style="padding: 8px 12px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; background: white; cursor: pointer;">
+                    <option value="">All Employees</option>
+                    @foreach (var e in (IEnumerable<TechCoreSolutions.Models.Employee>)ViewBag.Employees)
+                    {
+                        <option value="@e.EmployeeID"
+                            selected="@(ViewBag.SelectedEmployeeId?.ToString() == e.EmployeeID.ToString() ? "selected" : null)">
+                            @e.FirstName @e.LastName
+                        </option>
+                    }
+                </select>
+            </form>
             <button type="button" onclick="openAddPayrollModal()" style="background: #3B82F6; color: white; padding: 10px 20px; border: none; border-radius: 9px; text-decoration: none; font-size: 0.875rem; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
                 <i class="bi bi-plus-lg"></i> Add Payroll
             </button>
-            <button style="background: white; color: #6B6760; padding: 8px 14px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; cursor: pointer;">
+            <a asp-action="Index" style="background: white; color: #6B6760; padding: 8px 14px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center;">
                 Clear
-            </button>
-            <button style="background: white; color: #6B6760; padding: 8px 14px; border: 1px solid #E8E6E0; border-radius: 9px; font-size: 0.875rem; cursor: pointer;">
-                Export
-            </button>
+            </a>
         </div>
     </div>
 </div>
@@ -58,13 +83,15 @@
             </button>
         </div>
 
-        <form asp-action="Create" method="post" style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+        <form asp-action="Create" asp-controller="Payrolls" method="post" style="display: grid; grid-template-columns: 1fr; gap: 16px;">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" style="color: #E53E3E; font-size: 0.9rem;"></div>
-            
+
             <div>
                 <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Employee</label>
-                <select name="EmployeeID" required style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" onchange="computePayroll()">
+                <select name="EmployeeID" required id="addEmployeeSelect"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;"
+                    onchange="computePayroll()">
                     <option value="">— Select Employee —</option>
                     @foreach (var e in (IEnumerable<TechCoreSolutions.Models.Employee>)ViewBag.EmployeeList)
                     {
@@ -83,15 +110,19 @@
                 </div>
                 <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Days Worked</label>
-                    <input name="DaysWorked" type="number" min="0" max="31" required id="daysWorked" oninput="computePayroll()" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                    <input name="DaysWorked" type="number" min="0" max="31" required id="daysWorked"
+                        oninput="computePayroll()"
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
                 </div>
                 <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Deduction (₱)</label>
-                    <input name="Deduction" type="number" step="0.01" min="0" id="deduction" oninput="computePayroll()" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                    <input name="Deduction" type="number" step="0.01" min="0" value="0" id="deduction"
+                        oninput="computePayroll()"
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
                 </div>
             </div>
 
-            <div id="payPreview" style="display:none;margin-top:20px;background:#F4F7FB;border-radius:10px;padding:18px;">
+            <div id="payPreview" style="display:none; margin-top:20px; background:#F4F7FB; border-radius:10px; padding:18px;">
                 <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#718096;margin-bottom:12px;">
                     Computation Preview
                 </div>
@@ -137,14 +168,17 @@
             </button>
         </div>
 
-        <form asp-action="Edit" method="post" style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+        <!-- ✅ FIX: Added id="editPayrollForm" and action="/Payrolls/Edit/0" -->
+        <form id="editPayrollForm" action="/Payrolls/Edit/0" method="post" style="display: grid; grid-template-columns: 1fr; gap: 16px;">
             @Html.AntiForgeryToken()
             <input type="hidden" id="editPayrollId" name="PayrollID" />
             <div asp-validation-summary="ModelOnly" style="color: #E53E3E; font-size: 0.9rem;"></div>
-            
+
             <div>
                 <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Employee</label>
-                <select id="editEmployeeId" name="EmployeeID" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" onchange="computeEditPayroll()">
+                <select id="editEmployeeId" name="EmployeeID"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;"
+                    onchange="computeEditPayroll()">
                     @foreach (var e in (IEnumerable<TechCoreSolutions.Models.Employee>)ViewBag.EmployeeList)
                     {
                         <option value="@e.EmployeeID" data-rate="@e.DailyRate">
@@ -157,19 +191,24 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Payroll Date</label>
-                    <input id="editDate" name="Date" type="date" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                    <input id="editDate" name="Date" type="date"
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
                 </div>
                 <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Days Worked</label>
-                    <input id="editDaysWorked" name="DaysWorked" type="number" min="0" max="31" oninput="computeEditPayroll()" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                    <input id="editDaysWorked" name="DaysWorked" type="number" min="0" max="31"
+                        oninput="computeEditPayroll()"
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
                 </div>
                 <div>
                     <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #718096; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Deduction (₱)</label>
-                    <input id="editDeduction" name="Deduction" type="number" step="0.01" min="0" oninput="computeEditPayroll()" style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
+                    <input id="editDeduction" name="Deduction" type="number" step="0.01" min="0"
+                        oninput="computeEditPayroll()"
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #E8E6E0; border-radius: 8px; font-size: 0.875rem; outline: none; font-family: 'DM Sans', sans-serif;" />
                 </div>
             </div>
 
-            <div id="editPayPreview" style="margin-top:20px;background:#F4F7FB;border-radius:10px;padding:18px;">
+            <div id="editPayPreview" style="margin-top:20px; background:#F4F7FB; border-radius:10px; padding:18px;">
                 <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#718096;margin-bottom:12px;">
                     Current Computation
                 </div>
@@ -203,6 +242,7 @@
     </div>
 </div>
 
+<!-- Payroll Table Card -->
 <div class="tc-card">
     <div class="tc-card-header">
         <div>
@@ -254,10 +294,15 @@
                         <td><span class="badge-pay">₱@p.NetPay.ToString("N2")</span></td>
                         <td>
                             <div style="display: flex; gap: 8px;">
-                                <button type="button" onclick="openEditPayrollModal(@p.PayrollID, @p.EmployeeID, '@p.Date.ToString("yyyy-MM-dd")', @p.DaysWorked, @p.Deduction)" class="btn-icon" style="background: white; color: #718096; border: 1px solid #E8E6E0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.15s;">
+                                <button type="button"
+                                    onclick="openEditPayrollModal(@p.PayrollID, @p.EmployeeID, '@p.Date.ToString("yyyy-MM-dd")', @p.DaysWorked, @p.Deduction)"
+                                    class="btn-icon"
+                                    style="background: white; color: #718096; border: 1px solid #E8E6E0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.15s;">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <a asp-action="Delete" asp-route-id="@p.PayrollID" class="btn-icon btn-icon-danger" style="background: white; color: #E57368; border: 1px solid #F5C6C2; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.15s;">
+                                <a asp-action="Delete" asp-route-id="@p.PayrollID"
+                                    class="btn-icon btn-icon-danger"
+                                    style="background: white; color: #E57368; border: 1px solid #F5C6C2; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.15s;">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
@@ -278,7 +323,9 @@ function closeAddPayrollModal() {
     document.getElementById('addPayrollModal').style.display = 'none';
 }
 
+// ✅ FIX: Updates the form action with the correct payroll ID before submitting
 function openEditPayrollModal(id, empId, date, days, deduct) {
+    document.getElementById('editPayrollForm').action = '/Payrolls/Edit/' + id;
     document.getElementById('editPayrollId').value = id;
     document.getElementById('editEmployeeId').value = empId;
     document.getElementById('editDate').value = date;
@@ -293,7 +340,7 @@ function closeEditPayrollModal() {
 }
 
 function computePayroll() {
-    const sel = document.querySelector('[name="EmployeeID"]');
+    const sel = document.getElementById('addEmployeeSelect');
     const opt = sel?.options[sel.selectedIndex];
     const rate = parseFloat(opt?.dataset?.rate || 0);
     const days = parseFloat(document.getElementById('daysWorked')?.value || 0);
@@ -324,14 +371,14 @@ function computeEditPayroll() {
 }
 
 document.getElementById('addPayrollModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeAddPayrollModal();
-    }
+    if (e.target === this) closeAddPayrollModal();
 });
 
 document.getElementById('editPayrollModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeEditPayrollModal();
-    }
+    if (e.target === this) closeEditPayrollModal();
 });
 </script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
